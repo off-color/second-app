@@ -4,12 +4,16 @@ import { MAX_HEIGHT, MAX_WIDTH } from "../../consts/sizes";
 
 
 function getColorStyle(person) {
-    if (person.personHealth == "Dying" || person.personHealth == "Dead")
-        return styles.dying;
-    if(person.personHealth == "Sick")
-        return styles.sick;
-    return styles.healthy;
-
+    switch(person.personHealth) {
+        case "Dying":
+            return styles.dying;
+        case "Sick":
+            return styles.sick;
+        case "Dead":
+            return styles.dying;
+        default:
+            return styles.healthy;
+    }
 }
 
 export default function Person({ person, onClick }) {

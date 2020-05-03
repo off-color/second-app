@@ -25,7 +25,7 @@ namespace covidSim.Services
         }
 
         private const int StepsToRecovery = 35;
-        private const double ProbToDie = 0.3;
+        private const double ProbToDie = 0.000003;
         private const int StepsToDie = 10;
         public int Id;
         public int HomeId;
