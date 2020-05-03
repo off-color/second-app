@@ -71,7 +71,7 @@ namespace covidSim.Services
         private bool InOtherHouse(Vec nextPosition)
         {
             var game = Game.Instance;
-            return Game.Instance.Map.Houses.Any(house => InHouse(nextPosition, house.Id) && house.Id != HomeId);
+            return game.Map.Houses.Any(house => InHouse(nextPosition, house.Id) && house.Id != HomeId);
         }
 
         private bool InHouse(Vec nextPosition, int HomeId)
