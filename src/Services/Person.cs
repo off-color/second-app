@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using covidSim.Models;
 
 namespace covidSim.Services
@@ -57,7 +58,7 @@ namespace covidSim.Services
             var delta = new Vec(xLength * direction.X, yLength * direction.Y);
             var nextPosition = new Vec(Position.X + delta.X, Position.Y + delta.Y);
 
-            if (isCoordInField(nextPosition))
+            if (isCoordInField(nextPosition) && !InOtherHouse(nextPosition))
             {
                 Position = nextPosition;
             }
@@ -65,6 +66,20 @@ namespace covidSim.Services
             {
                 CalcNextPositionForWalkingPerson();
             }
+        }
+
+        private bool InOtherHouse(Vec nextPosition)
+        {
+            var game = Game.Instance;
+            return Game.Instance.Map.Houses.Any(house => InHouse(nextPosition, house.Id) && house.Id != HomeId);
+        }
+
+        private bool InHouse(Vec nextPosition, int HomeId)
+        {
+            var game = Game.Instance;
+            var homeCoord = game.Map.Houses[HomeId].Coordinates.LeftTopCorner;
+            return homeCoord.X < nextPosition.X && homeCoord.X + HouseCoordinates.Width > nextPosition.X &&
+                homeCoord.Y < nextPosition.Y && homeCoord.Y + HouseCoordinates.Height > nextPosition.Y;
         }
 
         private void CalcNextPositionForGoingHomePerson()
