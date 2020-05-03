@@ -4,7 +4,7 @@ import { MAX_HEIGHT, MAX_WIDTH } from "../../consts/sizes";
 
 
 function getColorStyle(person) {
-    if (person.personHealth == "Dying")
+    if (person.personHealth == "Dying" || person.personHealth == "Dead")
         return styles.dying;
     if(person.personHealth == "Sick")
         return styles.sick;
