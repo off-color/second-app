@@ -12,6 +12,8 @@ function getColorStyle(person) {
         case "Dead":
             return styles.dying;
         default:
+            if(person.isBored)
+                return styles.bored;
             return styles.healthy;
     }
 }

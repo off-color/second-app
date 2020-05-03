@@ -26,6 +26,15 @@ namespace covidSim.Services
             _lastUpdate = DateTime.Now;
         }
 
+        public Game Restart()
+        {
+            Map = new CityMap();
+            People = CreatePopulation();
+            _lastUpdate = DateTime.Now;
+
+            return this;
+        }
+
         public static Game Instance => _gameInstance ?? (_gameInstance = new Game());
 
         private List<Person> CreatePopulation()
