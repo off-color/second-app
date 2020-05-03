@@ -55,16 +55,16 @@ namespace covidSim.Services
                     break;
             }
 
-            if (IsCoordInHouse(Position, Game.Instance.Map.Houses[HomeId].Coordinates) || 
-                !IsCoordNotInOtherHouse(Position))
+            if (state == PersonState.AtHome)
                 HomeStayingDuration++;
-            else
+            else if (state == PersonState.Walking)
+            {
                 HomeStayingDuration = 0;
-
+                IsBored = false;
+            }
+            
             if (HomeStayingDuration > 4)
                 IsBored = true;
-            else
-                IsBored = false;
         }
 
         private void CalcNextStepForPersonAtHome()
