@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using covidSim.Models;
 
 namespace covidSim.Services
