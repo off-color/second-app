@@ -9,12 +9,14 @@ namespace covidSim.Services
         private static Random random = new Random();
         private PersonState state = PersonState.AtHome;
         private int sickStepsCount = 0;
+        private int deadStepsCount = 0;
 
         public Person(int id, int homeId, CityMap map, bool isSick)
         {
             Id = id;
             HomeId = homeId;
-            IsSick = isSick;
+            if (isSick)
+                PersonHealth = PersonHealth.Sick
 
             var homeCoords = map.Houses[homeId].Coordinates.LeftTopCorner;
             var x = homeCoords.X + random.Next(HouseCoordinates.Width);
@@ -22,14 +24,26 @@ namespace covidSim.Services
             Position = new Vec(x, y);
         }
 
+        private const int StepsToRecovery = 35;
+        private const double ProbToDie = 0.000003;
+        private const int StepsToDie = 10;
         public int Id;
         public int HomeId;
         public Vec Position;
-        public bool IsSick;
+        public PersonHealth PersonHealth = PersonHealth.Healthy;
 
         public void CalcNextStep()
         {
+            if (PersonHealth.Dead)
+                return;
 
+            if (PersonHealth.Dying)
+            {
+                deadStepsCount++;
+                if (deadStepsCount >= StepsToDie)
+                    PersonHealth = PersonHealth.Dead;
+                return;
+            }
 
             switch (state)
             {
@@ -43,11 +57,16 @@ namespace covidSim.Services
                     CalcNextPositionForGoingHomePerson();
                     break;
             }
-            if (IsSick)
+
+            if (PersonHealth.Sick)
             {
+                if (random.NextDouble() <= ProbToDie)
+                {
+                    PersonHealth = PersonHealth.Dying;
+                }
                 sickStepsCount++;
-                if (sickStepsCount >= 35)
-                    IsSick = false;
+                if (sickStepsCount >= StepsToRecovery)
+                    PersonHealth = PersonHealth.Healthy;
             }
         }
 

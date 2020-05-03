@@ -64,6 +64,7 @@ namespace covidSim.Services
         private void CalcNextStep()
         {
             _lastUpdate = DateTime.Now;
+            People = People.Where(p => p.PersonHealth != PersonHealth.Dead).ToList();
             foreach (var person in People)
             {
                 person.CalcNextStep();
