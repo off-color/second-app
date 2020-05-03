@@ -13,7 +13,7 @@ namespace covidSim.Services
         {
             Id = id;
             HomeId = homeId;
-            IsSick = isSick
+            IsSick = isSick;
 
             var homeCoords = map.Houses[homeId].Coordinates.LeftTopCorner;
             var x = homeCoords.X + random.Next(HouseCoordinates.Width);
