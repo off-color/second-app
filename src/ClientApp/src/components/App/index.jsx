@@ -30,13 +30,21 @@ export default class App extends React.Component {
         return (
             <div className={ styles.root }>
                 { instructionOpen && <Instruction onClose={ this.closeInstruction }/> }
-                <h1 className={ styles.title }>COVID-симулятор</h1>
+                <h1 className={ styles.title }>Симулятор COVID</h1>
                 <Field
                     map={ map }
                     people={ people }
-                    onClick={ this.personClick }/>
+                    onClick={this.personClick} />
+                <input type='button' onClick={this.restart} value='Restart' />
             </div>
         );
+    }
+
+    restart() {
+        fetch(gameStateUrl + "restart", {
+            method: 'GET'
+        })
+            .then(errorHandler);
     }
 
     closeInstruction = () => {
