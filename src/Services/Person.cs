@@ -10,6 +10,7 @@ namespace covidSim.Services
         private static Random random = new Random();
         private PersonState state = PersonState.AtHome;
         private int IllnessDuration;
+        private int HomeStayingDuration;
         private Vec homeCoords;
 
         public Person(int id, int homeId, CityMap map, bool isSick)
@@ -32,6 +33,8 @@ namespace covidSim.Services
         public Vec Position;
         public bool IsSick;
 
+        public bool IsBored;
+
         public void CalcNextStep()
         {
             if (IsSick)
@@ -51,6 +54,17 @@ namespace covidSim.Services
                     CalcNextPositionForGoingHomePerson();
                     break;
             }
+
+            if (state == PersonState.AtHome)
+                HomeStayingDuration++;
+            else if (state == PersonState.Walking)
+            {
+                HomeStayingDuration = 0;
+                IsBored = false;
+            }
+            
+            if (HomeStayingDuration > 4)
+                IsBored = true;
         }
 
         private void CalcNextStepForPersonAtHome()
@@ -174,18 +188,22 @@ namespace covidSim.Services
 
         private bool IsCoordNotInOtherHouse(Vec vec)
         {
-            return Game.Instance.Map.Houses.Where(x => x.Id != HomeId).All(x =>
-            {
-                var homeCoord = x.Coordinates.LeftTopCorner;
-                var homeCenter = new Vec(homeCoord.X + HouseCoordinates.Width / 2,
-                    homeCoord.Y + HouseCoordinates.Height / 2);
-                if (homeCenter.X - HouseCoordinates.Width / 2 <= vec.X &&
-                    vec.X <= homeCenter.X + HouseCoordinates.Width / 2 &&
-                    homeCenter.Y - HouseCoordinates.Height / 2 <= vec.Y &&
-                    vec.Y <= homeCenter.Y + HouseCoordinates.Height / 2)
-                    return false;
+            return Game.Instance.Map.Houses
+                .Where(x => x.Id != HomeId)
+                .All(x => !IsCoordInHouse(vec, x.Coordinates));
+        }
+
+        private bool IsCoordInHouse(Vec vec, HouseCoordinates houseCoordinates)
+        {
+            var homeCoord = houseCoordinates.LeftTopCorner;
+            var homeCenter = new Vec(homeCoord.X + HouseCoordinates.Width / 2,
+                homeCoord.Y + HouseCoordinates.Height / 2);
+            if (homeCenter.X - HouseCoordinates.Width / 2 <= vec.X &&
+                vec.X <= homeCenter.X + HouseCoordinates.Width / 2 &&
+                homeCenter.Y - HouseCoordinates.Height / 2 <= vec.Y &&
+                vec.Y <= homeCenter.Y + HouseCoordinates.Height / 2)
                 return true;
-            });
+            return false;
         }
     }
 }
