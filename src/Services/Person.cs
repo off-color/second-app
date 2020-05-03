@@ -39,6 +39,8 @@ namespace covidSim.Services
 
         public bool IsBored;
 
+        public bool IsWalking;
+
         public void CalcNextStep()
         {
             if (PersonHealth == PersonHealth.Dead)

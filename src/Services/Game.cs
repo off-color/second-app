@@ -18,6 +18,7 @@ namespace covidSim.Services
         public const int FieldHeight = 500;
         public const int MaxPeopleInHouse = 10;
         private const double SicknessProbability = 0.03;
+        private const int MinDistanceToGetSick = 7;
 
         private Game()
         {
@@ -78,7 +79,26 @@ namespace covidSim.Services
             foreach (var person in People)
             {
                 person.CalcNextStep();
+                if (ShouldBeSick(person) && _random.NextDouble() <= MinDistanceToGetSick)
+                    person.PersonHealth = PersonHealth.Sick;
             }
+        }
+
+        private bool ShouldBeSick(Person person)
+        {
+            if (!person.IsWalking)
+                return false;
+            if (person.PersonHealth != PersonHealth.Healthy)
+                return false;
+            return People
+                      .Where(p => p.IsWalking && person.PersonHealth == PersonHealth.Sick)
+                      .Select(p => GetDistanceBetweenPeople(p, person))
+                      .Any(distance => distance <= MinDistanceToGetSick);
+        }
+
+        private double GetDistanceBetweenPeople(Person person1, Person person2)
+        {
+            return person1.Position.DistanceToOther(person2.Position);
         }
     }
 }
