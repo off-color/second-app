@@ -10,6 +10,7 @@ namespace covidSim.Services
         private static Random random = new Random();
         private PersonState state = PersonState.AtHome;
         private int IllnessDuration;
+        private Vec homeCoords;
 
         public Person(int id, int homeId, CityMap map, bool isSick)
         {
@@ -20,7 +21,7 @@ namespace covidSim.Services
                 IllnessDuration = 35;
                 
 
-            var homeCoords = map.Houses[homeId].Coordinates.LeftTopCorner;
+            homeCoords = map.Houses[homeId].Coordinates.LeftTopCorner;
             var x = homeCoords.X + random.Next(HouseCoordinates.Width);
             var y = homeCoords.Y + random.Next(HouseCoordinates.Height);
             Position = new Vec(x, y);
@@ -55,19 +56,44 @@ namespace covidSim.Services
         private void CalcNextStepForPersonAtHome()
         {
             var goingWalk = random.NextDouble() < 0.005;
-            if (!goingWalk) return;
+            if (!goingWalk)
+            {
+                CalcNextPositionInHome();
+                return;
+            }
 
             state = PersonState.Walking;
             CalcNextPositionForWalkingPerson();
         }
 
+        private bool isCoordInHome(Vec vec)
+        {
+            var xRight = homeCoords.X + random.Next(HouseCoordinates.Width);
+            var yBottom = homeCoords.Y + random.Next(HouseCoordinates.Height);
+
+            var belowHome = vec.X < homeCoords.X || vec.Y < homeCoords.Y;
+            var beyondHome = vec.X > xRight || vec.Y > yBottom;
+
+            return !(belowHome || beyondHome);
+        }
+
+        private void CalcNextPositionInHome()
+        {
+            var nextPosition = GetNextPosition();
+
+            if (isCoordInHome(nextPosition))
+            {
+                Position = nextPosition;
+            }
+            else
+            {
+                CalcNextPositionInHome();
+            }
+        }
+
         private void CalcNextPositionForWalkingPerson()
         {
-            var xLength = random.Next(MaxDistancePerTurn);
-            var yLength = MaxDistancePerTurn - xLength;
-            var direction = ChooseDirection();
-            var delta = new Vec(xLength * direction.X, yLength * direction.Y);
-            var nextPosition = new Vec(Position.X + delta.X, Position.Y + delta.Y);
+            var nextPosition = GetNextPosition();
 
             if (IsCoordInField(nextPosition) && IsCoordNotInOtherHouse(nextPosition))
             {
@@ -77,6 +103,16 @@ namespace covidSim.Services
             {
                 CalcNextPositionForWalkingPerson();
             }
+        }
+
+        private Vec GetNextPosition()
+        {
+            var xLength = random.Next(MaxDistancePerTurn);
+            var yLength = MaxDistancePerTurn - xLength;
+            var direction = ChooseDirection();
+            var delta = new Vec(xLength * direction.X, yLength * direction.Y);
+            var nextPosition = new Vec(Position.X + delta.X, Position.Y + delta.Y);
+            return nextPosition;
         }
 
         private void CalcNextPositionForGoingHomePerson()
@@ -100,7 +136,7 @@ namespace covidSim.Services
 
             var direction = new Vec(Math.Sign(xDiff), Math.Sign(yDiff));
 
-            var xLength = Math.Min(xDistance, MaxDistancePerTurn); 
+            var xLength = Math.Min(xDistance, MaxDistancePerTurn);
             var newX = Position.X + xLength * direction.X;
             var yLength = MaxDistancePerTurn - xLength;
             var newY = Position.Y + yLength * direction.Y;
