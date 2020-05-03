@@ -16,7 +16,7 @@ namespace covidSim.Services
             Id = id;
             HomeId = homeId;
             if (isSick)
-                PersonHealth = PersonHealth.Sick
+                PersonHealth = PersonHealth.Sick;
 
             var homeCoords = map.Houses[homeId].Coordinates.LeftTopCorner;
             var x = homeCoords.X + random.Next(HouseCoordinates.Width);
@@ -34,10 +34,10 @@ namespace covidSim.Services
 
         public void CalcNextStep()
         {
-            if (PersonHealth.Dead)
+            if (PersonHealth == PersonHealth.Dead)
                 return;
 
-            if (PersonHealth.Dying)
+            if (PersonHealth == PersonHealth.Dying)
             {
                 deadStepsCount++;
                 if (deadStepsCount >= StepsToDie)
@@ -58,7 +58,7 @@ namespace covidSim.Services
                     break;
             }
 
-            if (PersonHealth.Sick)
+            if (PersonHealth == PersonHealth.Sick)
             {
                 if (random.NextDouble() <= ProbToDie)
                 {

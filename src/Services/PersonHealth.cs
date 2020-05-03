@@ -1,4 +1,4 @@
-enum PersonHealth
+public enum PersonHealth
 {
     Healthy,
     Sick,
